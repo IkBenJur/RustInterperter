@@ -11,6 +11,13 @@ impl Token {
         }
     }
 
+    pub fn new_from_char(token_type: TokenType, char_literal: char) -> Self {
+        Self {
+            t_type: token_type,
+            literal: char_literal.to_string(),
+        }
+    }
+
     pub fn from_identifier(identifier: String) -> Self {
         match identifier.as_str() {
             "let" => return Self::new(TokenType::LET, identifier),
