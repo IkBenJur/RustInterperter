@@ -10,6 +10,14 @@ impl Token {
             literal: token_literal,
         }
     }
+
+    pub fn from_identifier(identifier: String) -> Self {
+        match identifier.as_str() {
+            "let" => return Self::new(TokenType::LET, identifier),
+            "fn" => return Self::new(TokenType::FUNCTION, identifier),
+            _ => return Self::new(TokenType::IDENT, identifier),
+        }
+    }
 }
 
 #[derive(PartialEq, Debug)]
