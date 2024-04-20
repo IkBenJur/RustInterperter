@@ -38,6 +38,15 @@ impl Lexer {
         }
     }
 
+    fn skip_whitespace(&mut self) {
+        while let Some(ch) = self.ch {
+            if ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r' {
+                self.read_char();
+            } else {
+                break;
+            }
+        }
+    }
 }
 
 #[cfg(test)]
