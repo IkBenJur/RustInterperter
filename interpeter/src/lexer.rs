@@ -66,6 +66,24 @@ impl Lexer {
         return None;
     }
 
+    fn read_indetifer(&mut self) -> Option<String> {
+        if let Some(start_position) = self.position {
+            while let Some(ch) = self.ch {
+                if ('a'..='z').contains(&ch) || ('A'..='Z').contains(&ch) || '_' == ch {
+                    self.read_char();
+                } else {
+                    break;
+                };
+            }
+
+            return Some(
+                self.input[start_position as usize..self.position.unwrap() as usize].to_string(),
+            );
+        };
+
+        return None;
+    }
+
 }
 
 #[cfg(test)]
