@@ -64,12 +64,8 @@ impl Lexer {
 
     fn read_integer(&mut self) -> Option<String> {
         if let Some(start_position) = self.position {
-            while let Some(ch) = self.ch {
-                if ('0'..='9').contains(&ch) {
-                    self.read_char();
-                } else {
-                    break;
-                };
+            while let Some('0'..='9') = self.ch {
+                self.read_char();
             }
 
             return Some(
@@ -80,14 +76,10 @@ impl Lexer {
         return None;
     }
 
-    fn read_indetifer(&mut self) -> Option<String> {
+    fn read_identifier(&mut self) -> Option<String> {
         if let Some(start_position) = self.position {
-            while let Some(ch) = self.ch {
-                if ('a'..='z').contains(&ch) || ('A'..='Z').contains(&ch) || '_' == ch {
-                    self.read_char();
-                } else {
-                    break;
-                };
+            while let Some('a'..='z' | 'A'..='Z' | '_') = self.ch {
+                self.read_char();
             }
 
             return Some(
@@ -140,7 +132,7 @@ impl Lexer {
                 '<' => token = Token::new_from_char(TokenType::LT, char_literal),
                 '>' => token = Token::new_from_char(TokenType::GT, char_literal),
                 keyword_char => match keyword_char {
-                    'a'..='z' | 'A'..='Z' | '_' => match self.read_indetifer() {
+                    'a'..='z' | 'A'..='Z' | '_' => match self.read_identifier() {
                         None => {
                             return {
                                 println!("Unrecognized keyword char: {:?}", keyword_char);
