@@ -99,14 +99,20 @@ impl Lexer {
                 }
             }
             Some(char_literal) => match char_literal {
-                '=' => token = Token::new_from_char(TokenType::ASSIGN, char_literal),
                 ';' => token = Token::new_from_char(TokenType::SEMICOLON, char_literal),
                 '(' => token = Token::new_from_char(TokenType::LPAREN, char_literal),
                 ')' => token = Token::new_from_char(TokenType::RPAREN, char_literal),
-                ',' => token = Token::new_from_char(TokenType::COMMA, char_literal),
-                '+' => token = Token::new_from_char(TokenType::PLUS, char_literal),
                 '{' => token = Token::new_from_char(TokenType::LBRACE, char_literal),
                 '}' => token = Token::new_from_char(TokenType::RBRACE, char_literal),
+                ',' => token = Token::new_from_char(TokenType::COMMA, char_literal),
+                '=' => token = Token::new_from_char(TokenType::ASSIGN, char_literal),
+                '+' => token = Token::new_from_char(TokenType::PLUS, char_literal),
+                '-' => token = Token::new_from_char(TokenType::MINUS, char_literal),
+                '!' => token = Token::new_from_char(TokenType::BANG, char_literal),
+                '/' => token = Token::new_from_char(TokenType::SLASH, char_literal),
+                '*' => token = Token::new_from_char(TokenType::ASTERISK, char_literal),
+                '<' => token = Token::new_from_char(TokenType::LT, char_literal),
+                '>' => token = Token::new_from_char(TokenType::GT, char_literal),
                 keyword_char => match keyword_char {
                     'a'..='z' | 'A'..='Z' | '_' => match self.read_indetifer() {
                         None => {
@@ -164,7 +170,9 @@ mod tests {
           x + y;
         };
         
-        let result = add(five, ten);"
+        let result = add(five, ten);
+        !-/*5;
+        5 < 10 > 5;"
             .to_string();
 
         struct ExpectedToken {
@@ -312,6 +320,54 @@ mod tests {
             ExpectedToken {
                 expected_type: TokenType::RPAREN,
                 expected_literal: ")".to_string(),
+            },
+            ExpectedToken {
+                expected_type: TokenType::SEMICOLON,
+                expected_literal: ";".to_string(),
+            },
+            ExpectedToken {
+                expected_type: TokenType::BANG,
+                expected_literal: "!".to_string(),
+            },
+            ExpectedToken {
+                expected_type: TokenType::MINUS,
+                expected_literal: "-".to_string(),
+            },
+            ExpectedToken {
+                expected_type: TokenType::SLASH,
+                expected_literal: "/".to_string(),
+            },
+            ExpectedToken {
+                expected_type: TokenType::ASTERISK,
+                expected_literal: "*".to_string(),
+            },
+            ExpectedToken {
+                expected_type: TokenType::INT,
+                expected_literal: "5".to_string(),
+            },
+            ExpectedToken {
+                expected_type: TokenType::SEMICOLON,
+                expected_literal: ";".to_string(),
+            },
+            ExpectedToken {
+                expected_type: TokenType::INT,
+                expected_literal: "5".to_string(),
+            },
+            ExpectedToken {
+                expected_type: TokenType::LT,
+                expected_literal: "<".to_string(),
+            },
+            ExpectedToken {
+                expected_type: TokenType::INT,
+                expected_literal: "10".to_string(),
+            },
+            ExpectedToken {
+                expected_type: TokenType::GT,
+                expected_literal: ">".to_string(),
+            },
+            ExpectedToken {
+                expected_type: TokenType::INT,
+                expected_literal: "5".to_string(),
             },
             ExpectedToken {
                 expected_type: TokenType::SEMICOLON,
