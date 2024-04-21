@@ -22,6 +22,11 @@ impl Token {
         match identifier.as_str() {
             "let" => return Self::new(TokenType::LET, identifier),
             "fn" => return Self::new(TokenType::FUNCTION, identifier),
+            "true" => return Self::new(TokenType::TRUE, identifier),
+            "false" => return Self::new(TokenType::FALSE, identifier),
+            "if" => return Self::new(TokenType::IF, identifier),
+            "else" => return Self::new(TokenType::ELSE, identifier),
+            "return" => return Self::new(TokenType::RETURN, identifier),
             _ => return Self::new(TokenType::IDENT, identifier),
         }
     }
@@ -59,4 +64,9 @@ pub enum TokenType {
     // Keywords
     FUNCTION,
     LET,
+    TRUE,
+    FALSE,
+    IF,
+    ELSE,
+    RETURN,
 }

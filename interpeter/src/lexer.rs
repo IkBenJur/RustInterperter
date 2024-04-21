@@ -172,7 +172,13 @@ mod tests {
         
         let result = add(five, ten);
         !-/*5;
-        5 < 10 > 5;"
+        5 < 10 > 5;
+    
+        if (5 < 10) {
+            return true;
+        } else {
+            return false;
+        }"
             .to_string();
 
         struct ExpectedToken {
@@ -372,6 +378,74 @@ mod tests {
             ExpectedToken {
                 expected_type: TokenType::SEMICOLON,
                 expected_literal: ";".to_string(),
+            },
+            ExpectedToken {
+                expected_type: TokenType::IF,
+                expected_literal: "if".to_string(),
+            },
+            ExpectedToken {
+                expected_type: TokenType::LPAREN,
+                expected_literal: "(".to_string(),
+            },
+            ExpectedToken {
+                expected_type: TokenType::INT,
+                expected_literal: "5".to_string(),
+            },
+            ExpectedToken {
+                expected_type: TokenType::LT,
+                expected_literal: "<".to_string(),
+            },
+            ExpectedToken {
+                expected_type: TokenType::INT,
+                expected_literal: "10".to_string(),
+            },
+            ExpectedToken {
+                expected_type: TokenType::RPAREN,
+                expected_literal: ")".to_string(),
+            },
+            ExpectedToken {
+                expected_type: TokenType::LBRACE,
+                expected_literal: "{".to_string(),
+            },
+            ExpectedToken {
+                expected_type: TokenType::RETURN,
+                expected_literal: "return".to_string(),
+            },
+            ExpectedToken {
+                expected_type: TokenType::TRUE,
+                expected_literal: "true".to_string(),
+            },
+            ExpectedToken {
+                expected_type: TokenType::SEMICOLON,
+                expected_literal: ";".to_string(),
+            },
+            ExpectedToken {
+                expected_type: TokenType::RBRACE,
+                expected_literal: "}".to_string(),
+            },
+            ExpectedToken {
+                expected_type: TokenType::ELSE,
+                expected_literal: "else".to_string(),
+            },
+            ExpectedToken {
+                expected_type: TokenType::LBRACE,
+                expected_literal: "{".to_string(),
+            },
+            ExpectedToken {
+                expected_type: TokenType::RETURN,
+                expected_literal: "return".to_string(),
+            },
+            ExpectedToken {
+                expected_type: TokenType::FALSE,
+                expected_literal: "false".to_string(),
+            },
+            ExpectedToken {
+                expected_type: TokenType::SEMICOLON,
+                expected_literal: ";".to_string(),
+            },
+            ExpectedToken {
+                expected_type: TokenType::RBRACE,
+                expected_literal: "}".to_string(),
             },
             ExpectedToken {
                 expected_type: TokenType::EOF,
