@@ -40,6 +40,18 @@ impl Lexer {
         }
     }
 
+    fn peek_char(&self) -> Option<char> {
+        if let Some(read_position) = self.read_position {
+            if read_position >= self.input.len() as u32 {
+                return None;
+            } else {
+                return Some(self.input.chars().nth(read_position as usize).unwrap());
+            }
+        }
+
+        return None;
+    }
+
     fn skip_whitespace(&mut self) {
         while let Some(ch) = self.ch {
             if ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r' {
