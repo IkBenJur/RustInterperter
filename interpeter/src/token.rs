@@ -1,45 +1,30 @@
-pub struct Token {
-    pub t_type: TokenType,
-    pub literal: String,
-}
-
 impl Token {
-    pub fn new(token_type: TokenType, token_literal: String) -> Self {
-        Self {
-            t_type: token_type,
-            literal: token_literal,
-        }
-    }
-
-    pub fn new_from_char(token_type: TokenType, char_literal: char) -> Self {
-        Self {
-            t_type: token_type,
-            literal: char_literal.to_string(),
-        }
-    }
-
     pub fn from_identifier(identifier: String) -> Self {
         match identifier.as_str() {
-            "let" => return Self::new(TokenType::LET, identifier),
-            "fn" => return Self::new(TokenType::FUNCTION, identifier),
-            "true" => return Self::new(TokenType::TRUE, identifier),
-            "false" => return Self::new(TokenType::FALSE, identifier),
-            "if" => return Self::new(TokenType::IF, identifier),
-            "else" => return Self::new(TokenType::ELSE, identifier),
-            "return" => return Self::new(TokenType::RETURN, identifier),
-            _ => return Self::new(TokenType::IDENT, identifier),
+            "let" => return Self::LET,
+            "fn" => return Self::FUNCTION,
+            "true" => return Self::TRUE,
+            "false" => return Self::FALSE,
+            "if" => return Self::IF,
+            "else" => return Self::ELSE,
+            "return" => return Self::RETURN,
+            _ => return Self::IDENT(identifier),
         }
+    }
+
+    pub fn from_interger_string(interger: String) -> Self{
+        return Token::INT(interger.parse().unwrap());
     }
 }
 
-#[derive(PartialEq, Debug)]
-pub enum TokenType {
+#[derive(PartialEq, Debug, Clone)]
+pub enum Token {
     ILLEGAL,
     EOF,
 
     // Identifiers + literals
-    IDENT, // add, foobar, x, y, ...
-    INT,   // 1343456
+    IDENT(String), // add, foobar, x, y, ...
+    INT(u128),   // 1343456
 
     // Operators
     ASSIGN,

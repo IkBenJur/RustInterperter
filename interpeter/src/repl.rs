@@ -1,6 +1,6 @@
 use std::io::Stdin;
 
-use crate::{lexer::Lexer, token::TokenType};
+use crate::{lexer::Lexer, token::Token};
 
 pub fn start(in_reader: Stdin) {
     let mut buffer = String::new();
@@ -12,8 +12,8 @@ pub fn start(in_reader: Stdin) {
                 let mut lexer = Lexer::new(buffer.clone());
 
                 let mut token = lexer.next_token();
-                while token.t_type != TokenType::EOF {
-                    println!("Type: {:?}, Literal: {}", token.t_type, token.literal);
+                while token != Token::EOF {
+                    println!("Type: {:?}", token);
                     token = lexer.next_token();
                 }
             }
