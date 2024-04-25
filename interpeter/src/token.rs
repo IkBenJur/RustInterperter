@@ -1,4 +1,21 @@
 impl Token {
+    pub fn from_char(char_literal: char) -> Option<Self> {
+        match char_literal {
+            ';' => return Some(Token::SEMICOLON),
+            '(' => return Some(Token::LPAREN),
+            ')' => return Some(Token::RPAREN),
+            '{' => return Some(Token::LBRACE),
+            '}' => return Some(Token::RBRACE),
+            ',' => return Some(Token::COMMA),
+            '+' => return Some(Token::PLUS),
+            '-' => return Some(Token::MINUS),
+            '/' => return Some(Token::SLASH),
+            '*' => return Some(Token::ASTERISK),
+            '<' => return Some(Token::LT),
+            '>' => return Some(Token::GT),
+            _ => None,
+        }
+    }
     pub fn from_identifier(identifier: String) -> Self {
         match identifier.as_str() {
             "let" => return Self::LET,
@@ -12,7 +29,7 @@ impl Token {
         }
     }
 
-    pub fn from_interger_string(interger: String) -> Self{
+    pub fn from_interger_string(interger: String) -> Self {
         return Token::INT(interger.parse().unwrap());
     }
 }
@@ -24,7 +41,7 @@ pub enum Token {
 
     // Identifiers + literals
     IDENT(String), // add, foobar, x, y, ...
-    INT(u128),   // 1343456
+    INT(u128),     // 1343456
 
     // Operators
     ASSIGN,
@@ -33,7 +50,7 @@ pub enum Token {
     BANG,
     ASTERISK,
     SLASH,
-    
+
     LT,
     GT,
     EQ,

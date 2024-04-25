@@ -1,4 +1,5 @@
 use crate::token::Token;
+use std::char;
 
 pub struct Lexer {
     input: String,
@@ -95,65 +96,58 @@ impl Lexer {
 
         self.skip_whitespace();
 
-        match self.ch {
-            None => token = Token::EOF,
-            Some(char_literal) => match char_literal {
-                ';' => token = Token::SEMICOLON,
-                '(' => token = Token::LPAREN,
-                ')' => token = Token::RPAREN,
-                '{' => token = Token::LBRACE,
-                '}' => token = Token::RBRACE,
-                ',' => token = Token::COMMA,
-                '=' => {
-                    if let Some('=') = self.peek_char() {
-                        self.read_char();
-                        token = Token::EQ
-                    } else {
-                        token = Token::ASSIGN
+        if let Some(char_literal) = self.ch {
+            if let Some(t) = Token::from_char(char_literal) {
+                token = t
+            } else {
+                match char_literal {
+                    '=' => {
+                        if let Some('=') = self.peek_char() {
+                            self.read_char();
+                            token = Token::EQ
+                        } else {
+                            token = Token::ASSIGN
+                        }
                     }
-                }
-                '+' => token = Token::PLUS,
-                '-' => token = Token::MINUS,
-                '!' => {
-                    if let Some('=') = self.peek_char() {
-                        self.read_char();
-                        token = Token::NOTEQ
-                    } else {
-                        token = Token::BANG
+                    '!' => {
+                        if let Some('=') = self.peek_char() {
+                            self.read_char();
+                            token = Token::NOTEQ
+                        } else {
+                            token = Token::BANG
+                        }
                     }
-                }
-                '/' => token = Token::SLASH,
-                '*' => token = Token::ASTERISK,
-                '<' => token = Token::LT,
-                '>' => token = Token::GT,
-                keyword_char => match keyword_char {
-                    'a'..='z' | 'A'..='Z' | '_' => match self.read_identifier() {
-                        None => {
+                    keyword_char => match keyword_char {
+                        'a'..='z' | 'A'..='Z' | '_' => match self.read_identifier() {
+                            None => {
+                                return {
+                                    println!("Unrecognized keyword char: {:?}", keyword_char);
+                                    Token::ILLEGAL
+                                };
+                            }
+                            Some(token_literal) => return Token::from_identifier(token_literal),
+                        },
+                        '0'..='9' => match self.read_integer() {
+                            None => {
+                                return {
+                                    println!("Unrecognized number char: {:?}", keyword_char);
+                                    Token::ILLEGAL
+                                };
+                            }
+                            Some(interger) => return Token::from_interger_string(interger),
+                        },
+                        _ => {
                             return {
-                                println!("Unrecognized keyword char: {:?}", keyword_char);
+                                println!("Unrecognized char: {:?}", char_literal);
                                 Token::ILLEGAL
                             };
                         }
-                        Some(token_literal) => return Token::from_identifier(token_literal),
                     },
-                    '0'..='9' => match self.read_integer() {
-                        None => {
-                            return {
-                                println!("Unrecognized number char: {:?}", keyword_char);
-                                Token::ILLEGAL
-                            };
-                        }
-                        Some(interger) => return Token::from_interger_string(interger),
-                    },
-                    _ => {
-                        return {
-                            println!("Unrecognized char: {:?}", char_literal);
-                            Token::ILLEGAL
-                        };
-                    }
-                },
-            },
-        };
+                }
+            }
+        } else {
+            token = Token::EOF
+        }
 
         self.read_char();
         return token;
@@ -279,7 +273,7 @@ mod tests {
         for i in 0..expected_types.len() {
             let t = test_lexer.next_token();
 
-            println!("Token num: {}. Token: {:?}",i, t);
+            println!("Token num: {}. Token: {:?}", i, t);
 
             assert_eq!(t, expected_types[i]);
         }
