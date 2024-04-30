@@ -28,6 +28,10 @@ impl Parser {
         self.next_token = self.lexer.next_token();
     }
 
+    fn cur_token_is(&self, token: Token) -> bool {
+        return &self.cur_token == &token;
+    }
+
     fn parse_let_statement(&mut self) -> Result<Statement, &'static str> {
         self.advance_token();
 
@@ -38,16 +42,16 @@ impl Parser {
 
         self.advance_token();
 
-        if self.cur_token != Token::ASSIGN {
+        if !self.cur_token_is(Token::ASSIGN) {
             return Err("No equal sign found after let identiefer");
         }
 
         self.advance_token();
 
-        //Parse expression
-
-        self.advance_token();
-
+        while !self.cur_token_is(Token::SEMICOLON){
+            self.advance_token();
+        };
+        
         return Ok(Statement::Let(identifier));
     }
 
@@ -63,7 +67,6 @@ impl Parser {
                 _ => todo!("Not yet done"),
             };
 
-            //Skip semi colon
             self.advance_token();
             statements.push(statement);
         }
