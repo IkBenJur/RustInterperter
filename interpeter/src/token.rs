@@ -30,7 +30,7 @@ impl Token {
     }
 
     pub fn from_interger_string(interger: String) -> Self {
-        return Token::INT(interger.parse().unwrap());
+        return Token::INT(interger);
     }
 }
 
@@ -41,7 +41,7 @@ pub enum Token {
 
     // Identifiers + literals
     IDENT(String), // add, foobar, x, y, ...
-    INT(u128),     // 1343456
+    INT(String),     // 1343456
 
     // Operators
     ASSIGN,
