@@ -19,8 +19,12 @@ impl Parser {
         let mut lexer = Lexer::new(input);
         let cur_token = lexer.next_token();
         let next_token = lexer.next_token();
-        
-        Parser { lexer, cur_token, next_token }
+
+        Parser {
+            lexer,
+            cur_token,
+            next_token,
+        }
     }
 
     fn advance_token(&mut self) {
@@ -30,6 +34,15 @@ impl Parser {
 
     fn cur_token_is(&self, token: Token) -> bool {
         return &self.cur_token == &token;
+    }
+
+    fn expect_peek(&mut self, token: Token) -> bool {
+        if self.cur_token_is(token) {
+            self.advance_token();
+            return true;
+        } else {
+            return false;
+        }
     }
 
     fn parse_let_statement(&mut self) -> Result<Statement, &'static str> {
@@ -42,16 +55,14 @@ impl Parser {
 
         self.advance_token();
 
-        if !self.cur_token_is(Token::ASSIGN) {
+        if !self.expect_peek(Token::ASSIGN) {
             return Err("No equal sign found after let identiefer");
         }
 
-        self.advance_token();
-
-        while !self.cur_token_is(Token::SEMICOLON){
+        while !self.cur_token_is(Token::SEMICOLON) {
             self.advance_token();
-        };
-        
+        }
+
         return Ok(Statement::Let(identifier));
     }
 
@@ -102,11 +113,8 @@ mod tests {
             Statement::Let(String::from("foobar")),
         ];
 
-        for i in 0..=expected_identifiers.len()-1 {
-            assert_eq!(
-                program.statements[i],
-                expected_identifiers[i]
-            );
+        for i in 0..=expected_identifiers.len() - 1 {
+            assert_eq!(program.statements[i], expected_identifiers[i]);
         }
     }
 }
