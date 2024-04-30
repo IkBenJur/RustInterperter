@@ -1,7 +1,7 @@
 #[derive(PartialEq, Debug)]
 pub enum Statement {
-    Let(String),
-    Return(String),
+    Let(Expresion, Expresion),
+    Return(Expresion),
 }
 
 #[derive(PartialEq, Debug)]

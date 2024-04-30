@@ -44,7 +44,7 @@ impl Parser {
                 Token::RETURN => match self.parse_return_statement() {
                     Ok(return_statement) => return_statement,
                     Err(e) => panic!("{}", e),
-                }
+                },
                 _ => todo!("Not yet done"),
             };
 
@@ -75,7 +75,10 @@ impl Parser {
             self.advance_token();
         }
 
-        return Ok(Statement::Let(identifier));
+        return Ok(Statement::Let(
+            Expresion::Identifer(identifier),
+            Expresion::Identifer(String::from("")),
+        ));
     }
 
     fn parse_return_statement(&mut self) -> Result<Statement, &'static str> {
@@ -90,7 +93,7 @@ impl Parser {
             self.advance_token();
         }
 
-        return Ok(Statement::Return(expresion))
+        return Ok(Statement::Return(Expresion::Identifer(expresion)));
     }
 
     fn cur_token_is(&self, token: Token) -> bool {
@@ -110,7 +113,7 @@ impl Parser {
 #[cfg(test)]
 mod tests {
     use super::Parser;
-    use crate::ast::Statement;
+    use crate::ast::{Expresion, Statement};
 
     #[test]
     fn test_let_statement_parse_program() {
@@ -127,9 +130,18 @@ mod tests {
         assert_eq!(3, program.statements.len());
 
         let expected_identifiers = vec![
-            Statement::Let(String::from("x")),
-            Statement::Let(String::from("y")),
-            Statement::Let(String::from("foobar")),
+            Statement::Let(
+                Expresion::Identifer(String::from("x")),
+                Expresion::Identifer(String::from("")),
+            ),
+            Statement::Let(
+                Expresion::Identifer(String::from("y")),
+                Expresion::Identifer(String::from("")),
+            ),
+            Statement::Let(
+                Expresion::Identifer(String::from("foobar")),
+                Expresion::Identifer(String::from("")),
+            ),
         ];
 
         for i in 0..=expected_identifiers.len() - 1 {
@@ -143,17 +155,18 @@ mod tests {
         return 5;
         return 10;
         return 993322;
-        ".to_string();
+        "
+        .to_string();
 
         let mut parser = Parser::new(input);
         let program = parser.parse_program();
 
         assert_eq!(3, program.statements.len());
-        
+
         let expected_statements = vec![
-            Statement::Return(String::from("5")),
-            Statement::Return(String::from("10")),
-            Statement::Return(String::from("993322")),
+            Statement::Return(Expresion::Identifer(String::from("5"))),
+            Statement::Return(Expresion::Identifer(String::from("10"))),
+            Statement::Return(Expresion::Identifer(String::from("993322"))),
         ];
 
         for i in 0..=expected_statements.len() - 1 {
