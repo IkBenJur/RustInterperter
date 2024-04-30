@@ -1,11 +1,12 @@
 #[derive(PartialEq, Debug)]
 pub enum Statement {
-    Let(String)
+    Let(String),
+    Return(String),
 }
 
 #[derive(PartialEq, Debug)]
 pub enum Expresion {
-    Identifer(String)
+    Identifer(String),
 }
 
 pub struct Program {
