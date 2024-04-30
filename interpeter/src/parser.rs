@@ -11,18 +11,21 @@ use crate::{
 pub struct Parser {
     lexer: Lexer,
     cur_token: Token,
+    next_token: Token,
 }
 
 impl Parser {
     pub fn new(input: String) -> Parser {
         let mut lexer = Lexer::new(input);
         let cur_token = lexer.next_token();
-
-        Parser { lexer, cur_token }
+        let next_token = lexer.next_token();
+        
+        Parser { lexer, cur_token, next_token }
     }
 
     fn advance_token(&mut self) {
-        self.cur_token = self.lexer.next_token();
+        self.cur_token = self.next_token.clone();
+        self.next_token = self.lexer.next_token();
     }
 
     fn parse_let_statement(&mut self) -> Result<Statement, &'static str> {
