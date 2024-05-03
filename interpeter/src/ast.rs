@@ -2,6 +2,7 @@
 pub enum Statement {
     Let(Expresion, Expresion),
     Return(Expresion),
+    Expression(Expresion),
 }
 
 #[derive(PartialEq, Debug)]
