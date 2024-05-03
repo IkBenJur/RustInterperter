@@ -47,7 +47,10 @@ impl Parser {
                     Ok(return_statement) => return_statement,
                     Err(e) => panic!("{}", e),
                 },
-                _ => todo!("Not yet done"),
+                _ => match self.parse_expression() {
+                    Ok(expresion) => expresion,
+                    Err(e) => panic!("{}", e),
+                },
             };
 
             self.advance_token();
