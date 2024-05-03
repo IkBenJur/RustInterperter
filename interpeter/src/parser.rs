@@ -98,6 +98,14 @@ impl Parser {
         return Ok(Statement::Return(Expresion::Identifer(expresion)));
     }
 
+    fn parse_identifier(&self) -> Result<Expresion, ParseError> {
+        if let Token::IDENT(string) = &self.cur_token {
+            return Ok(Expresion::Identifer(string.to_owned()));
+        }
+
+        return Err("No Identifier found whilst trying to parse identiefer");
+    }
+
     fn cur_token_is(&self, token: Token) -> bool {
         return &self.cur_token == &token;
     }
