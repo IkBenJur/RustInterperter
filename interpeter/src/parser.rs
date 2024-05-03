@@ -14,6 +14,8 @@ pub struct Parser {
     next_token: Token,
 }
 
+type ParseError = &'static str;
+
 impl Parser {
     pub fn new(input: String) -> Parser {
         let mut lexer = Lexer::new(input);
@@ -57,7 +59,7 @@ impl Parser {
         };
     }
 
-    fn parse_let_statement(&mut self) -> Result<Statement, &'static str> {
+    fn parse_let_statement(&mut self) -> Result<Statement, ParseError> {
         self.advance_token();
 
         let identifier = match &self.cur_token {
@@ -81,7 +83,7 @@ impl Parser {
         ));
     }
 
-    fn parse_return_statement(&mut self) -> Result<Statement, &'static str> {
+    fn parse_return_statement(&mut self) -> Result<Statement, ParseError> {
         self.advance_token();
 
         let expresion = match &self.cur_token {
