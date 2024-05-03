@@ -102,6 +102,10 @@ impl Parser {
         return &self.cur_token == &token;
     }
 
+    fn next_token_is(&self, token: Token) -> bool {
+        return &self.next_token == &token;
+    }
+
     fn expect_peek(&mut self, token: Token) -> bool {
         if self.cur_token_is(token) {
             self.advance_token();
