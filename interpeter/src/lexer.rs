@@ -30,13 +30,10 @@ impl Lexer {
             if read_position >= self.input.len() as u32 {
                 self.ch = None;
             } else {
-                if let Some(read_position) = self.read_position {
-                    let new_char = self.input.chars().nth(read_position as usize).unwrap();
-                    self.ch = Some(new_char);
-                }
-
-                self.position = self.read_position;
-                self.read_position = Some(self.read_position.unwrap() + 1);
+                let new_char = self.input.chars().nth(read_position as usize).unwrap();
+                self.ch = Some(new_char);
+                self.position = Some(read_position);
+                self.read_position = Some(read_position + 1)
             }
         }
     }
