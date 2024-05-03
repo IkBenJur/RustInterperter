@@ -98,6 +98,19 @@ impl Parser {
         return Ok(Statement::Return(Expresion::Identifer(expresion)));
     }
 
+    fn parse_expression(&mut self) -> Result<Statement, ParseError> {
+        let expression = match &self.cur_token {
+            Token::IDENT(string) => self.parse_identifier()?,
+            _ => return Err("Non implemetned expression found"),
+        };
+
+        if self.next_token_is(Token::SEMICOLON) {
+            self.advance_token()
+        }
+
+        return Ok(Statement::Expression(expression));
+    }
+
     fn parse_identifier(&self) -> Result<Expresion, ParseError> {
         if let Token::IDENT(string) = &self.cur_token {
             return Ok(Expresion::Identifer(string.to_owned()));
