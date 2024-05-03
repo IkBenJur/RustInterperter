@@ -203,4 +203,16 @@ mod tests {
             assert_eq!(program.statements[i], expected_statements[i]);
         }
     }
+
+    #[test]
+    fn test_expression_statement_parse_program() {
+        let input = String::from("foobar;");
+
+        let program = Parser::new(input).parse_program();
+
+        assert_eq!(
+            program.statements[0],
+            Statement::Expression(Expresion::Identifer(String::from("foobar")))
+        );
+    }
 }
