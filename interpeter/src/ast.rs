@@ -10,6 +10,11 @@ pub enum Expresion {
     Identifer(String),
     Interger(u64),
 }
+#[derive(PartialEq, Debug)]
+pub enum Operator {
+    Minus,
+    Not,
+}
 
 pub enum Precedence {
     Lowest = 1,
