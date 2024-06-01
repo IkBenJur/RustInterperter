@@ -11,7 +11,9 @@ pub enum Statement {
 pub enum Expresion {
     Identifer(String),
     Interger(u64),
+    Prefix(Operator, Box<Expresion>),
 }
+
 #[derive(PartialEq, Debug)]
 pub enum Operator {
     Minus,
