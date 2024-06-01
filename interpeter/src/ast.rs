@@ -44,6 +44,7 @@ impl From<Token> for Operator {
     }
 }
 
+#[derive(PartialEq, PartialOrd)]
 pub enum Precedence {
     Lowest = 1,
     Equals = 2,
@@ -52,6 +53,18 @@ pub enum Precedence {
     Product = 5,
     Prefix = 6,
     Call = 7,
+}
+
+impl From<Token> for Precedence {
+    fn from(value: Token) -> Self {
+        match value {
+            Token::LT | Token::GT => return Precedence::Lessgreater,
+            Token::EQ | Token::NOTEQ => return Precedence::Equals,
+            Token::PLUS | Token::MINUS => return Precedence::Sum,
+            Token::SLASH | Token::ASTERISK => return Precedence::Product,
+            _ => Precedence::Lowest,
+        }
+    }
 }
 
 pub struct Program {
