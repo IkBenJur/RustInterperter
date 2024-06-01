@@ -104,6 +104,7 @@ impl Parser {
     fn parse_expression(&mut self) -> Result<Statement, ParseError> {
         let expression = match &self.cur_token {
             Token::IDENT(string) => self.parse_identifier()?,
+            Token::INT(num) => self.parse_integer()?,
             _ => return Err("Non implemetned expression found"),
         };
 
@@ -117,6 +118,19 @@ impl Parser {
     fn parse_identifier(&self) -> Result<Expresion, ParseError> {
         if let Token::IDENT(string) = &self.cur_token {
             return Ok(Expresion::Identifer(string.to_owned()));
+        }
+
+        return Err("No Identifier found whilst trying to parse identiefer");
+    }
+
+    fn parse_integer(&self) -> Result<Expresion, ParseError> {
+        if let Token::INT(num_literal) = &self.cur_token {
+            let num = match num_literal.to_owned().parse() {
+                Ok(parsed_num) => Ok(Expresion::Interger(parsed_num)),
+                Err(_) => Err("Failed to parse number into Interger")
+            };
+            
+            return num;
         }
 
         return Err("No Identifier found whilst trying to parse identiefer");
@@ -206,13 +220,21 @@ mod tests {
 
     #[test]
     fn test_expression_statement_parse_program() {
-        let input = String::from("foobar;");
+        let input = "foobar;
+        5;"
+        .to_string();
 
         let program = Parser::new(input).parse_program();
 
-        assert_eq!(
-            program.statements[0],
-            Statement::Expression(Expresion::Identifer(String::from("foobar")))
-        );
+        let expected_statements = vec![
+            Statement::Expression(Expresion::Identifer(String::from("foobar"))),
+            Statement::Expression(Expresion::Interger(5)),
+        ];
+
+        assert_eq!(expected_statements.len(), program.statements.len());
+
+        for i in 0..=expected_statements.len() - 1 {
+            assert_eq!(program.statements[i], expected_statements[i]);
+        }
     }
 }

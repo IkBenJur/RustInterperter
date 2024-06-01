@@ -8,6 +8,7 @@ pub enum Statement {
 #[derive(PartialEq, Debug)]
 pub enum Expresion {
     Identifer(String),
+    Interger(u64),
 }
 
 pub enum Precedence {
