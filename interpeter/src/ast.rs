@@ -17,6 +17,13 @@ pub enum Expresion {
 #[derive(PartialEq, Debug)]
 pub enum Operator {
     Minus,
+    Plus,
+    Multiply,
+    Divide,
+    Gt,
+    Lt,
+    Equals,
+    NotEquals,
     Not,
 }
 
@@ -24,6 +31,13 @@ impl From<Token> for Operator {
     fn from(value: Token) -> Self {
         match value {
             Token::MINUS => return Operator::Minus,
+            Token::PLUS => return Operator::Plus,
+            Token::ASTERISK => return Operator::Multiply,
+            Token::SLASH => return Operator::Divide,
+            Token::GT => return Operator::Gt,
+            Token::LT => return Operator::Lt,
+            Token::EQ => return Operator::Equals,
+            Token::NOTEQ => return Operator::NotEquals,
             Token::BANG => return Operator::Not,
             _ => unimplemented!("Token not valid to parse into operator {:?}", value),
         }
