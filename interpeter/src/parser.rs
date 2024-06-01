@@ -14,7 +14,7 @@ pub struct Parser {
     next_token: Token,
 }
 
-type ParseError = &'static str;
+type ParseError = String;
 
 impl Parser {
     pub fn new(input: String) -> Parser {
@@ -67,13 +67,21 @@ impl Parser {
 
         let identifier = match &self.cur_token {
             Token::IDENT(string) => string.to_owned(),
-            _ => return Err("No identiefer found after let statement"),
+            _ => {
+                return Err(format!(
+                    "No identiefer found after let statement found: {:?}",
+                    self.cur_token
+                ))
+            }
         };
 
         self.advance_token();
 
         if !self.expect_peek(Token::ASSIGN) {
-            return Err("No equal sign found after let identiefer");
+            return Err(format!(
+                "No equal sign found after let identiefer found: {:?}",
+                self.cur_token
+            ));
         }
 
         while !self.cur_token_is(Token::SEMICOLON) {
@@ -91,7 +99,7 @@ impl Parser {
 
         let expresion = match &self.cur_token {
             Token::INT(num) => num.to_owned(),
-            _ => return Err("No experssion found"),
+            _ => return Err(format!("No experssion found, found: {:?}", self.cur_token)),
         };
 
         while !self.cur_token_is(Token::SEMICOLON) {
@@ -107,7 +115,12 @@ impl Parser {
             Token::MINUS => self.parse_prefix()?,
             Token::IDENT(_) => self.parse_identifier()?,
             Token::INT(_) => self.parse_integer()?,
-            _ => return Err("Non implemetned expression found"),
+            _ => {
+                return Err(format!(
+                    "Non implemetned expression found {:?}",
+                    &self.cur_token
+                ))
+            }
         };
 
         if self.next_token_is(Token::SEMICOLON) {
@@ -122,20 +135,29 @@ impl Parser {
             return Ok(Expresion::Identifer(string.to_owned()));
         }
 
-        return Err("No Identifier found whilst trying to parse identiefer");
+        return Err(format!(
+            "No Identifier found whilst trying to parse identiefer found: {:?}",
+            self.cur_token
+        ));
     }
 
     fn parse_integer(&self) -> Result<Expresion, ParseError> {
         if let Token::INT(num_literal) = &self.cur_token {
             let num = match num_literal.to_owned().parse() {
                 Ok(parsed_num) => Ok(Expresion::Interger(parsed_num)),
-                Err(_) => Err("Failed to parse number into Interger"),
+                Err(_) => Err(format!(
+                    "Failed to parse number into Interger found: {:?}",
+                    self.cur_token
+                )),
             };
 
             return num;
         }
 
-        return Err("No Identifier found whilst trying to parse identiefer");
+        return Err(format!(
+            "No integer found whilst trying to parse integer found: {:?}",
+            self.cur_token
+        ));
     }
 
     fn parse_operator(&self) -> Operator {
@@ -152,10 +174,18 @@ impl Parser {
                 if let Statement::Expression(expr) = statement {
                     expr
                 } else {
-                    return Err("No expression statement found after prefix operator");
+                    return Err(format!(
+                        "No expression statement found after prefix operator found: {:?}",
+                        self.cur_token
+                    ));
                 }
             }
-            Err(_) => return Err("No expression statement found after prefix operator"),
+            Err(_) => {
+                return Err(format!(
+                    "No expression statement found after prefix operator found: {:?}",
+                    self.cur_token
+                ))
+            }
         };
 
         return Ok(Expresion::Prefix(left, Box::new(right)));
