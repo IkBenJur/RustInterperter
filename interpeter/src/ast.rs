@@ -12,6 +12,7 @@ pub enum Expresion {
     Identifer(String),
     Interger(u64),
     Prefix(Operator, Box<Expresion>),
+    Infix(Box<Expresion>, Operator, Box<Expresion>),
 }
 
 #[derive(PartialEq, Debug)]

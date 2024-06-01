@@ -3,7 +3,7 @@
 //And Token::asign wont have anything because asign doesnt hold a varaible etc.
 
 use crate::{
-    ast::{Expresion, Operator, Program, Statement},
+    ast::{Expresion, Operator, Precedence, Program, Statement},
     lexer::Lexer,
     token::Token,
 };
@@ -47,7 +47,7 @@ impl Parser {
                     Ok(return_statement) => return_statement,
                     Err(e) => panic!("{}", e),
                 },
-                _ => match self.parse_expression() {
+                _ => match self.parse_expression(self.precedence_of_cur_token()) {
                     Ok(expresion) => expresion,
                     Err(e) => panic!("{}", e),
                 },
@@ -109,8 +109,8 @@ impl Parser {
         return Ok(Statement::Return(Expresion::Identifer(expresion)));
     }
 
-    fn parse_expression(&mut self) -> Result<Statement, ParseError> {
-        let expression = match &self.cur_token {
+    fn parse_expression(&mut self, precedence: Precedence) -> Result<Statement, ParseError> {
+        let mut expression = match &self.cur_token {
             Token::BANG => self.parse_prefix()?,
             Token::MINUS => self.parse_prefix()?,
             Token::IDENT(_) => self.parse_identifier()?,
@@ -124,7 +124,23 @@ impl Parser {
         };
 
         if self.next_token_is(Token::SEMICOLON) {
-            self.advance_token()
+            self.advance_token();
+        }
+
+        while !self.cur_token_is(Token::SEMICOLON) && precedence < self.precedence_of_next_token() {
+            self.advance_token();
+
+            expression = match &self.cur_token {
+                Token::LT
+                | Token::GT
+                | Token::EQ
+                | Token::NOTEQ
+                | Token::MINUS
+                | Token::PLUS
+                | Token::SLASH
+                | Token::ASTERISK => self.parse_infix(expression)?,
+                _ => return Ok(Statement::Expression(expression)),
+            };
         }
 
         return Ok(Statement::Expression(expression));
@@ -169,7 +185,7 @@ impl Parser {
 
         self.advance_token();
 
-        let right: Expresion = match self.parse_expression() {
+        let right: Expresion = match self.parse_expression(self.precedence_of_cur_token()) {
             Ok(statement) => {
                 if let Statement::Expression(expr) = statement {
                     expr
@@ -191,6 +207,19 @@ impl Parser {
         return Ok(Expresion::Prefix(left, Box::new(right)));
     }
 
+    fn parse_infix(&mut self, left: Expresion) -> Result<Expresion, ParseError> {
+        let operator = self.parse_operator();
+        let precedence = self.precedence_of_cur_token();
+
+        self.advance_token();
+
+        if let Statement::Expression(right) = self.parse_expression(precedence)? {
+            return Ok(Expresion::Infix(Box::new(left), operator, Box::new(right)));
+        }
+
+        return Err(format!("Failed to parse infix found: {:?}", self.cur_token));
+    }
+
     fn cur_token_is(&self, token: Token) -> bool {
         return &self.cur_token == &token;
     }
@@ -207,12 +236,20 @@ impl Parser {
             return false;
         }
     }
+
+    fn precedence_of_cur_token(&self) -> Precedence {
+        return Precedence::from(self.cur_token.clone());
+    }
+
+    fn precedence_of_next_token(&self) -> Precedence {
+        return Precedence::from(self.next_token.clone());
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::Parser;
-    use crate::ast::{Expresion, Operator, Statement};
+    use crate::ast::{Expresion, Operator, Program, Statement};
 
     #[test]
     fn test_let_statement_parse_program() {
@@ -309,6 +346,70 @@ mod tests {
             Statement::Expression(Expresion::Prefix(
                 Operator::Not,
                 Box::new(Expresion::Identifer(String::from("foobar"))),
+            )),
+        ];
+
+        assert_eq!(expected_statements.len(), program.statements.len());
+
+        for i in 0..=expected_statements.len() - 1 {
+            assert_eq!(program.statements[i], expected_statements[i]);
+        }
+    }
+
+    #[test]
+    fn test_infix_expression_parse_program() {
+        let input = "5 + 5;
+        5 - 5;
+        5 * 5;
+        5 / 5;
+        5 > 5;
+        5 < 5;
+        5 != 5;
+        5 == 5;"
+            .to_string();
+
+        let program = Parser::new(input).parse_program();
+
+        let expected_statements = vec![
+            Statement::Expression(Expresion::Infix(
+                Box::new(Expresion::Interger(5)),
+                Operator::Plus,
+                Box::new(Expresion::Interger(5)),
+            )),
+            Statement::Expression(Expresion::Infix(
+                Box::new(Expresion::Interger(5)),
+                Operator::Minus,
+                Box::new(Expresion::Interger(5)),
+            )),
+            Statement::Expression(Expresion::Infix(
+                Box::new(Expresion::Interger(5)),
+                Operator::Multiply,
+                Box::new(Expresion::Interger(5)),
+            )),
+            Statement::Expression(Expresion::Infix(
+                Box::new(Expresion::Interger(5)),
+                Operator::Divide,
+                Box::new(Expresion::Interger(5)),
+            )),
+            Statement::Expression(Expresion::Infix(
+                Box::new(Expresion::Interger(5)),
+                Operator::Gt,
+                Box::new(Expresion::Interger(5)),
+            )),
+            Statement::Expression(Expresion::Infix(
+                Box::new(Expresion::Interger(5)),
+                Operator::Lt,
+                Box::new(Expresion::Interger(5)),
+            )),
+            Statement::Expression(Expresion::Infix(
+                Box::new(Expresion::Interger(5)),
+                Operator::NotEquals,
+                Box::new(Expresion::Interger(5)),
+            )),
+            Statement::Expression(Expresion::Infix(
+                Box::new(Expresion::Interger(5)),
+                Operator::Equals,
+                Box::new(Expresion::Interger(5)),
             )),
         ];
 
