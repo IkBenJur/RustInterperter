@@ -3,7 +3,7 @@
 //And Token::asign wont have anything because asign doesnt hold a varaible etc.
 
 use crate::{
-    ast::{Expresion, Program, Statement},
+    ast::{Expresion, Operator, Program, Statement},
     lexer::Lexer,
     token::Token,
 };
@@ -103,8 +103,10 @@ impl Parser {
 
     fn parse_expression(&mut self) -> Result<Statement, ParseError> {
         let expression = match &self.cur_token {
-            Token::IDENT(string) => self.parse_identifier()?,
-            Token::INT(num) => self.parse_integer()?,
+            Token::BANG => self.parse_prefix()?,
+            Token::MINUS => self.parse_prefix()?,
+            Token::IDENT(_) => self.parse_identifier()?,
+            Token::INT(_) => self.parse_integer()?,
             _ => return Err("Non implemetned expression found"),
         };
 
@@ -127,13 +129,36 @@ impl Parser {
         if let Token::INT(num_literal) = &self.cur_token {
             let num = match num_literal.to_owned().parse() {
                 Ok(parsed_num) => Ok(Expresion::Interger(parsed_num)),
-                Err(_) => Err("Failed to parse number into Interger")
+                Err(_) => Err("Failed to parse number into Interger"),
             };
-            
+
             return num;
         }
 
         return Err("No Identifier found whilst trying to parse identiefer");
+    }
+
+    fn parse_operator(&self) -> Operator {
+        return Operator::from(self.cur_token.clone());
+    }
+
+    fn parse_prefix(&mut self) -> Result<Expresion, ParseError> {
+        let left = self.parse_operator();
+
+        self.advance_token();
+
+        let right: Expresion = match self.parse_expression() {
+            Ok(statement) => {
+                if let Statement::Expression(expr) = statement {
+                    expr
+                } else {
+                    return Err("No expression statement found after prefix operator");
+                }
+            }
+            Err(_) => return Err("No expression statement found after prefix operator"),
+        };
+
+        return Ok(Expresion::Prefix(left, Box::new(right)));
     }
 
     fn cur_token_is(&self, token: Token) -> bool {
@@ -157,7 +182,7 @@ impl Parser {
 #[cfg(test)]
 mod tests {
     use super::Parser;
-    use crate::ast::{Expresion, Statement};
+    use crate::ast::{Expresion, Operator, Statement};
 
     #[test]
     fn test_let_statement_parse_program() {
@@ -229,6 +254,32 @@ mod tests {
         let expected_statements = vec![
             Statement::Expression(Expresion::Identifer(String::from("foobar"))),
             Statement::Expression(Expresion::Interger(5)),
+        ];
+
+        assert_eq!(expected_statements.len(), program.statements.len());
+
+        for i in 0..=expected_statements.len() - 1 {
+            assert_eq!(program.statements[i], expected_statements[i]);
+        }
+    }
+
+    #[test]
+    fn test_prefix_expression_parse_program() {
+        let input = "-5;
+        !foobar;"
+            .to_string();
+
+        let program = Parser::new(input).parse_program();
+
+        let expected_statements = vec![
+            Statement::Expression(Expresion::Prefix(
+                Operator::Minus,
+                Box::new(Expresion::Interger(5)),
+            )),
+            Statement::Expression(Expresion::Prefix(
+                Operator::Not,
+                Box::new(Expresion::Identifer(String::from("foobar"))),
+            )),
         ];
 
         assert_eq!(expected_statements.len(), program.statements.len());
