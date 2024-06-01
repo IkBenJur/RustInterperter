@@ -1,3 +1,5 @@
+use crate::token::Token;
+
 #[derive(PartialEq, Debug)]
 pub enum Statement {
     Let(Expresion, Expresion),
@@ -14,6 +16,16 @@ pub enum Expresion {
 pub enum Operator {
     Minus,
     Not,
+}
+
+impl From<Token> for Operator {
+    fn from(value: Token) -> Self {
+        match value {
+            Token::MINUS => return Operator::Minus,
+            Token::BANG => return Operator::Not,
+            _ => unimplemented!("Token not valid to parse into operator {:?}", value),
+        }
+    }
 }
 
 pub enum Precedence {
