@@ -13,6 +13,7 @@ pub enum Expresion {
     Interger(u64),
     Prefix(Operator, Box<Expresion>),
     Infix(Box<Expresion>, Operator, Box<Expresion>),
+    Bool { value: bool },
 }
 
 #[derive(PartialEq, Debug)]

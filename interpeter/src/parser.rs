@@ -1,7 +1,3 @@
-//Rewrite token to just be token enum.
-//Enum values will be of something like Token::Ident(string)
-//And Token::asign wont have anything because asign doesnt hold a varaible etc.
-
 use crate::{
     ast::{Expresion, Operator, Precedence, Program, Statement},
     lexer::Lexer,
@@ -108,6 +104,7 @@ impl Parser {
             Token::MINUS => self.parse_prefix()?,
             Token::IDENT(_) => self.parse_identifier()?,
             Token::INT(_) => self.parse_integer()?,
+            Token::TRUE | Token::FALSE => self.parse_boolean()?,
             _ => {
                 return Err(format!(
                     "Non implemetned expression found {:?}",
@@ -171,6 +168,19 @@ impl Parser {
 
     fn parse_operator(&self) -> Operator {
         return Operator::from(self.cur_token.clone());
+    }
+
+    fn parse_boolean(&self) -> Result<Expresion, ParseError> {
+        match self.cur_token {
+            Token::TRUE => return Ok(Expresion::Bool { value: true }),
+            Token::FALSE => return Ok(Expresion::Bool { value: false }),
+            _ => {
+                return Err(format!(
+                    "Expected either True or False token in parse_boolean got: {:?}",
+                    self.cur_token
+                ))
+            }
+        }
     }
 
     fn parse_prefix(&mut self) -> Result<Expresion, ParseError> {
@@ -398,6 +408,35 @@ mod tests {
                 Operator::Equals,
                 Box::new(Expresion::Interger(5)),
             )),
+        ];
+
+        assert_eq!(expected_statements.len(), program.statements.len());
+
+        for i in 0..=expected_statements.len() - 1 {
+            assert_eq!(program.statements[i], expected_statements[i]);
+        }
+    }
+
+    #[test]
+    fn test_parse_boolean() {
+        let input = "true;
+        false;
+        let foobar = true;
+        let barfoo = false;"
+            .to_string();
+        let program = Parser::new(input).parse_program();
+
+        let expected_statements = vec![
+            Statement::Expression(Expresion::Bool { value: true }),
+            Statement::Expression(Expresion::Bool { value: false }),
+            Statement::Let(
+                Expresion::Identifer(String::from("foobar")),
+                Expresion::Bool { value: true },
+            ),
+            Statement::Let(
+                Expresion::Identifer(String::from("barfoo")),
+                Expresion::Bool { value: false },
+            ),
         ];
 
         assert_eq!(expected_statements.len(), program.statements.len());
