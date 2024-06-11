@@ -48,7 +48,7 @@ impl Parser {
                     Err(e) => panic!("{}", e),
                 },
                 _ => match self.parse_expression(self.precedence_of_cur_token()) {
-                    Ok(expresion) => expresion,
+                    Ok(expresion) => Statement::Expression(expresion),
                     Err(e) => panic!("{}", e),
                 },
             };
@@ -109,7 +109,7 @@ impl Parser {
         return Ok(Statement::Return(Expresion::Identifer(expresion)));
     }
 
-    fn parse_expression(&mut self, precedence: Precedence) -> Result<Statement, ParseError> {
+    fn parse_expression(&mut self, precedence: Precedence) -> Result<Expresion, ParseError> {
         let mut expression = match &self.cur_token {
             Token::BANG => self.parse_prefix()?,
             Token::MINUS => self.parse_prefix()?,
@@ -139,11 +139,11 @@ impl Parser {
                 | Token::PLUS
                 | Token::SLASH
                 | Token::ASTERISK => self.parse_infix(expression)?,
-                _ => return Ok(Statement::Expression(expression)),
+                _ => return Ok(expression),
             };
         }
 
-        return Ok(Statement::Expression(expression));
+        return Ok(expression);
     }
 
     fn parse_identifier(&self) -> Result<Expresion, ParseError> {
@@ -185,26 +185,14 @@ impl Parser {
 
         self.advance_token();
 
-        let right: Expresion = match self.parse_expression(self.precedence_of_cur_token()) {
-            Ok(statement) => {
-                if let Statement::Expression(expr) = statement {
-                    expr
-                } else {
-                    return Err(format!(
-                        "No expression statement found after prefix operator found: {:?}",
-                        self.cur_token
-                    ));
-                }
-            }
-            Err(_) => {
-                return Err(format!(
-                    "No expression statement found after prefix operator found: {:?}",
-                    self.cur_token
-                ))
-            }
-        };
-
-        return Ok(Expresion::Prefix(left, Box::new(right)));
+        if let Ok(right) = self.parse_expression(self.precedence_of_cur_token()) {
+            return Ok(Expresion::Prefix(left, Box::new(right)));
+        } else {
+            return Err(format!(
+                "Failed to parse prefix, found: {:?}",
+                self.cur_token
+            ));
+        }
     }
 
     fn parse_infix(&mut self, left: Expresion) -> Result<Expresion, ParseError> {
@@ -213,11 +201,11 @@ impl Parser {
 
         self.advance_token();
 
-        if let Statement::Expression(right) = self.parse_expression(precedence)? {
+        if let Ok(right) = self.parse_expression(precedence) {
             return Ok(Expresion::Infix(Box::new(left), operator, Box::new(right)));
+        } else {
+            return Err(format!("Failed to parse infix found: {:?}", self.cur_token));
         }
-
-        return Err(format!("Failed to parse infix found: {:?}", self.cur_token));
     }
 
     fn cur_token_is(&self, token: Token) -> bool {
