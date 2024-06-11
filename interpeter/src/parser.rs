@@ -84,29 +84,22 @@ impl Parser {
             ));
         }
 
-        while !self.cur_token_is(Token::SEMICOLON) {
-            self.advance_token();
-        }
+        let expression = self.parse_expression(self.precedence_of_cur_token())?;
 
-        return Ok(Statement::Let(
-            Expresion::Identifer(identifier),
-            Expresion::Identifer(String::from("")),
-        ));
+        return Ok(Statement::Let(Expresion::Identifer(identifier), expression));
     }
 
     fn parse_return_statement(&mut self) -> Result<Statement, ParseError> {
         self.advance_token();
 
-        let expresion = match &self.cur_token {
-            Token::INT(num) => num.to_owned(),
-            _ => return Err(format!("No experssion found, found: {:?}", self.cur_token)),
+        if let Ok(expresion) = self.parse_expression(self.precedence_of_cur_token()) {
+            return Ok(Statement::Return(expresion));
+        } else {
+            return Err(format!(
+                "Failed to parse expression, found: {:?}",
+                self.cur_token
+            ));
         };
-
-        while !self.cur_token_is(Token::SEMICOLON) {
-            self.advance_token();
-        }
-
-        return Ok(Statement::Return(Expresion::Identifer(expresion)));
     }
 
     fn parse_expression(&mut self, precedence: Precedence) -> Result<Expresion, ParseError> {
@@ -256,15 +249,15 @@ mod tests {
         let expected_identifiers = vec![
             Statement::Let(
                 Expresion::Identifer(String::from("x")),
-                Expresion::Identifer(String::from("")),
+                Expresion::Interger(5),
             ),
             Statement::Let(
                 Expresion::Identifer(String::from("y")),
-                Expresion::Identifer(String::from("")),
+                Expresion::Interger(10),
             ),
             Statement::Let(
                 Expresion::Identifer(String::from("foobar")),
-                Expresion::Identifer(String::from("")),
+                Expresion::Interger(838383),
             ),
         ];
 
@@ -279,18 +272,24 @@ mod tests {
         return 5;
         return 10;
         return 993322;
+        return 2 + 5;
         "
         .to_string();
 
         let mut parser = Parser::new(input);
         let program = parser.parse_program();
 
-        assert_eq!(3, program.statements.len());
+        assert_eq!(4, program.statements.len());
 
         let expected_statements = vec![
-            Statement::Return(Expresion::Identifer(String::from("5"))),
-            Statement::Return(Expresion::Identifer(String::from("10"))),
-            Statement::Return(Expresion::Identifer(String::from("993322"))),
+            Statement::Return(Expresion::Interger(5)),
+            Statement::Return(Expresion::Interger(10)),
+            Statement::Return(Expresion::Interger(993322)),
+            Statement::Return(Expresion::Infix(
+                Box::from(Expresion::Interger(2)),
+                Operator::Plus,
+                Box::from(Expresion::Interger(5)),
+            )),
         ];
 
         for i in 0..=expected_statements.len() - 1 {
